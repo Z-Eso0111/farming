@@ -1,0 +1,153 @@
+-- GUI oluşturma fonksiyonu
+local function createGUI()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "AirwalkGUI"
+    gui.ResetOnSpawn = false
+
+    local button = Instance.new("TextButton", gui)
+    button.Name = "ToggleAirwalk"
+    button.Text = "Airwalk: Kapalı"
+    button.AnchorPoint = Vector2.new(0, 1)
+    button.Position = UDim2.new(0, 10, 1, -10)
+    button.Size = UDim2.new(0, 120, 0, 40)
+
+    local airwalkRunning = false
+    button.MouseButton1Click:Connect(function()
+        if airwalkRunning then
+            button.Text = "Airwalk: Kapalı"
+            airwalkRunning = false
+            _G.StopAirwalk = true
+        else
+            button.Text = "Airwalk: Açık"
+            airwalkRunning = true
+            _G.StopAirwalk = false
+
+            -- Airwalk scripti
+            local air = Instance.new("Part", workspace)
+            air.Size = Vector3.new(7, 2, 3)
+            air.CFrame = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, -4, 0)
+            air.Transparency = 0.5
+            air.Anchored = true
+            air.Name = "Airwalk"
+
+            while not _G.StopAirwalk do
+                air.CFrame = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, -4, 0)
+                wait(0.01)
+            end
+
+            air:Destroy()
+        end
+    end)
+
+    gui.Parent = game:GetService("CoreGui")
+end
+
+-- GUI'yi oluştur
+createGUI()
+-- GUI elemanlarını oluşturma
+local gui = Instance.new("ScreenGui")
+gui.Name = "Anchor GUI"
+
+local onButton = Instance.new("TextButton", gui)
+onButton.Text = "ON"
+onButton.Size = UDim2.new(0, 100, 0, 50)
+onButton.Position = UDim2.new(0.5, -150, 0.05, 0)
+onButton.BackgroundColor3 = Color3.new(0, 1, 0)
+onButton.TextColor3 = Color3.new(1, 1, 1)
+onButton.Font = Enum.Font.SourceSans
+onButton.TextSize = 20
+
+local offButton = Instance.new("TextButton", gui)
+offButton.Text = "OFF"
+offButton.Size = UDim2.new(0, 100, 0, 50)
+offButton.Position = UDim2.new(0.5, 50, 0.05, 0)
+offButton.BackgroundColor3 = Color3.new(1, 0, 0)
+offButton.TextColor3 = Color3.new(1, 1, 1)
+offButton.Font = Enum.Font.SourceSans
+offButton.TextSize = 20
+
+-- Tüm parçaları seçme
+local parts = game.Workspace:GetDescendants()
+local anchoredParts = {}
+
+-- ON düğmesine tıklanınca
+onButton.MouseButton1Click:Connect(function()
+    -- Tüm parçaların anchor'ını aç
+    for _, part in ipairs(parts) do
+        if part:IsA("BasePart") and not part.Anchored then
+            part.Anchored = true
+            table.insert(anchoredParts, part)
+        end
+    end
+end)
+
+-- OFF düğmesine tıklanınca
+offButton.MouseButton1Click:Connect(function()
+    -- Seçilen parçaların anchor'ını kapat
+    for _, part in ipairs(anchoredParts) do
+        if part and part.Anchored then
+            part.Anchored = false
+        end
+    end
+    anchoredParts = {}
+end)
+
+-- GUI elemanlarını ekrana yerleştirme
+gui.Parent = game:GetService("CoreGui")
+local gui = Instance.new("ScreenGui")
+gui.Name = "Meteor Farm Teleporter GUI"
+
+local button = Instance.new("TextButton", gui)
+button.Text = "Meteor Farm"
+button.Size = UDim2.new(0, 100, 0, 50)
+button.Position = UDim2.new(0.5, -50, 0.05, 0)
+button.BackgroundColor3 = Color3.new(1, 1, 1)
+button.TextColor3 = Color3.new(0, 0, 0)
+button.Font = Enum.Font.SourceSans
+button.TextSize = 20
+
+local teleportPositions = {
+    Vector3.new(-49, -9, -554),
+    Vector3.new(-206, -1, 1189),
+    Vector3.new(-197, 0, 1640),
+    Vector3.new(-200, -5, 2500),
+    Vector3.new(-270, -5, 3653),
+    Vector3.new(-185, 6, 3800),
+    Vector3.new(-368, 5, 4758),
+    Vector3.new(-207, 11, 5533),
+    Vector3.new(-247, 94, 6580),
+    Vector3.new(89, 23, 7187),
+    Vector3.new(126, 12, 8155),
+    Vector3.new(76, 43, 8553),
+    Vector3.new(85, -208, 8915),
+    Vector3.new(-57.73, -359.30, 9495.28),
+}
+
+local teleportIndex = 1
+local teleportDelay = 5
+local teleporting = false
+
+local function teleportToNextPosition()
+    if not teleporting then return end
+    
+    local position = teleportPositions[teleportIndex]
+    game.Players.LocalPlayer.Character:SetPrimaryPartCFrame(CFrame.new(position))
+    
+    teleportIndex = teleportIndex % #teleportPositions + 1
+    wait(teleportDelay)
+    
+    teleportToNextPosition()
+end
+
+button.MouseButton1Click:Connect(function()
+    if teleporting then
+        teleporting = false
+        button.Text = "Meteor Farm"
+    else
+        teleporting = true
+        button.Text = "Stop Teleporting"
+        teleportToNextPosition()
+    end
+end)
+
+gui.Parent = game:GetService("CoreGui")
